@@ -18,15 +18,15 @@ use self::utils::RouteInfo;
 pub struct LocalSearch {
     pub granularity: usize,
     /// Timestamp for route modifications, used for efficient move testing
-    route_timestamps: Vec<usize>,
+    pub route_timestamps: Vec<usize>,
     /// Timestamp for move testing per customer
-    move_timestamps: HashMap<(usize, usize, usize), usize>,
+    pub move_timestamps: HashMap<(usize, usize, usize), usize>,
     /// Current move count, used as timestamp
-    move_count: usize,
+    pub move_count: usize,
     /// SWAP* route polar sectors for pruning
-    route_sectors: Vec<RouteInfo>,
+    pub route_sectors: Vec<RouteInfo>,
     /// Preprocessed neighbors for each customer
-    customer_neighbors: HashMap<usize, Vec<usize>>,
+    pub customer_neighbors: HashMap<usize, Vec<usize>>,
 }
 
 impl LocalSearch {
@@ -71,7 +71,7 @@ impl LocalSearch {
 
     /// Preprocess neighbors for all customers based on granularity.
     /// This significantly improves performance by avoiding repeated distance calculations.
-    fn preprocess_neighbors(&mut self, problem: &Problem) {
+    pub fn preprocess_neighbors(&mut self, problem: &Problem) {
         self.customer_neighbors.clear();
 
         // For each customer (excluding depot)
@@ -85,7 +85,7 @@ impl LocalSearch {
     }
 
     /// Initialize the tracking structures for the local search.
-    fn initialize_tracking(&mut self, solution: &Solution) {
+    pub fn initialize_tracking(&mut self, solution: &Solution) {
         self.route_timestamps = vec![0; solution.routes.len()];
         self.move_count = 0;
         self.move_timestamps.clear();
@@ -93,18 +93,13 @@ impl LocalSearch {
     }
 
     /// Update timestamps when a route is modified.
-    pub(crate) fn update_route_timestamp(&mut self, route_idx: usize) {
+    pub fn update_route_timestamp(&mut self, route_idx: usize) {
         self.move_count += 1;
         self.route_timestamps[route_idx] = self.move_count;
     }
 
     /// Check if a move has been tested before and is still valid.
-    pub(crate) fn is_move_valid(
-        &mut self,
-        customer: usize,
-        move_type: usize,
-        route_idx: usize,
-    ) -> bool {
+    pub fn is_move_valid(&mut self, customer: usize, move_type: usize, route_idx: usize) -> bool {
         let key = (customer, move_type, route_idx);
         let route_ts = self.route_timestamps[route_idx];
 

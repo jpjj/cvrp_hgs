@@ -5,9 +5,9 @@ extern crate criterion;
 
 #[cfg(feature = "bench")]
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
-use cvrp_hgs::config::Config;
-use cvrp_hgs::problem::{Node, Problem};
-use cvrp_hgs::HgsAlgorithm;
+use hgs_cvrp::config::Config;
+use hgs_cvrp::problem::{Node, Problem};
+use hgs_cvrp::HgsAlgorithm;
 use std::time::Duration;
 
 /// Create a benchmark problem of specified size.

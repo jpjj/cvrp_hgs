@@ -7,7 +7,7 @@ use rand::thread_rng;
 use std::f64;
 
 use super::utils::{
-    calculate_insertion_cost, calculate_removal_cost, find_route_for_customer, get_neighbors,
+    self, calculate_insertion_cost, calculate_removal_cost, find_route_for_customer, get_neighbors,
 };
 use super::LocalSearch;
 
@@ -43,7 +43,15 @@ impl LocalSearch {
                 let customer = r1.customers[c_pos];
 
                 // Use preprocessed neighbors instead of recalculating them
-                let neighbors = self.customer_neighbors[&customer].clone();
+                let maybe_neighbors = self.customer_neighbors.get(&customer);
+                let neighbors = match maybe_neighbors {
+                    Some(neighbors) => neighbors.clone(),
+                    None => {
+                        let neighbors = utils::get_neighbors(customer, problem, self.granularity);
+                        self.customer_neighbors.insert(customer, neighbors.clone());
+                        neighbors
+                    }
+                };
 
                 for &neighbor in &neighbors {
                     // Find which route contains this neighbor
