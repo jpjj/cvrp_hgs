@@ -1,9 +1,9 @@
 //! Population management for the genetic algorithm.
 
-use crate::config::Config;
 use crate::individual::Individual;
 use crate::problem::Problem;
 use crate::solution::Solution;
+use crate::{config::Config, individual};
 use rand::{seq::SliceRandom, Rng};
 use std::collections::HashSet;
 
@@ -118,20 +118,24 @@ impl Population {
         }
 
         // Calculate common pairs for feasible individuals
-        self.calculate_common_pairs(&mut self.feasible_individuals);
+        self.calculate_common_pairs(true);
 
         // Calculate common pairs for infeasible individuals
-        self.calculate_common_pairs(&mut self.infeasible_individuals);
+        self.calculate_common_pairs(false);
 
         // Assign diversity ranks for feasible individuals
-        self.assign_diversity_ranks(&mut self.feasible_individuals);
+        self.assign_diversity_ranks(true);
 
         // Assign diversity ranks for infeasible individuals
-        self.assign_diversity_ranks(&mut self.infeasible_individuals);
+        self.assign_diversity_ranks(false);
     }
 
     /// Calculate common pairs between all individuals in a subpopulation.
-    fn calculate_common_pairs(&self, individuals: &mut [Individual]) {
+    fn calculate_common_pairs(&mut self, feasible: bool) {
+        let individuals = match feasible {
+            true => &mut self.feasible_individuals,
+            false => &mut self.infeasible_individuals,
+        };
         let count = individuals.len();
 
         for i in 0..count {
@@ -147,7 +151,11 @@ impl Population {
     }
 
     /// Assign diversity ranks based on the distance to the closest individuals.
-    fn assign_diversity_ranks(&self, individuals: &mut [Individual]) {
+    fn assign_diversity_ranks(&mut self, feasible: bool) {
+        let individuals = match feasible {
+            true => &mut self.feasible_individuals,
+            false => &mut self.infeasible_individuals,
+        };
         if individuals.is_empty() {
             return;
         }
@@ -253,12 +261,16 @@ impl Population {
 
     /// Select survivors to maintain population size.
     pub fn select_survivors(&mut self) {
-        self.select_survivors_for_subpop(&mut self.feasible_individuals);
-        self.select_survivors_for_subpop(&mut self.infeasible_individuals);
+        self.select_survivors_for_subpop(true);
+        self.select_survivors_for_subpop(false);
     }
 
     /// Select survivors for a subpopulation.
-    fn select_survivors_for_subpop(&mut self, individuals: &mut Vec<Individual>) {
+    fn select_survivors_for_subpop(&mut self, feasible: bool) {
+        let individuals = match feasible {
+            true => &mut self.feasible_individuals,
+            false => &mut self.infeasible_individuals,
+        };
         if individuals.len() <= self.min_pop_size {
             return;
         }
@@ -333,11 +345,14 @@ impl Population {
     }
 
     /// Get the best feasible solution in the population.
-    pub fn get_best_feasible_solution(&self) -> Option<&Individual> {
-        if self.feasible_individuals.is_empty() {
-            None
-        } else {
-            Some(&self.feasible_individuals[0])
-        }
+    pub fn get_best_feasible_solution(&self) -> Option<&Solution> {
+        self.feasible_individuals
+            .iter()
+            .min_by(|a, b| {
+                a.get_cost()
+                    .partial_cmp(&b.get_cost())
+                    .unwrap_or(std::cmp::Ordering::Equal)
+            })
+            .map(|x| &x.solution)
     }
 }

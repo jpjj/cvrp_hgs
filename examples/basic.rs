@@ -1,8 +1,8 @@
 //! Basic example of using the HGS-CVRP library.
 
-use cvrp_hgs::config::Config;
-use cvrp_hgs::problem::Problem;
-use cvrp_hgs::utils::{format_duration, print_solution_visualization, save_solution};
+use hgs_cvrp::config::Config;
+use hgs_cvrp::problem::Problem;
+use hgs_cvrp::utils::{format_duration, print_solution_visualization, save_solution};
 use std::env;
 use std::path::Path;
 use std::time::{Duration, Instant};
@@ -38,7 +38,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Create and run algorithm
     println!("Initializing algorithm");
-    let mut algorithm = cvrp_hgs::HgsAlgorithm::new(problem.clone(), config);
+    let mut algorithm = hgs_cvrp::HgsAlgorithm::new(problem.clone(), config);
 
     println!("Starting search (time limit: 60s)");
     let start_time = Instant::now();

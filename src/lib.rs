@@ -12,12 +12,14 @@
 pub mod config;
 pub mod genetic;
 pub mod individual;
-pub mod local_search;
+pub mod local_search; // Now a directory with modules
 pub mod population;
 pub mod problem;
 pub mod solution;
 pub mod split;
 pub mod utils;
+
+use individual::Individual;
 
 use crate::config::Config;
 use crate::genetic::Genetic;
@@ -50,7 +52,7 @@ impl HgsAlgorithm {
         HgsAlgorithm {
             problem,
             population: Population::new(&config),
-            config,
+            config: config.clone(),
             best_solution: None,
             run_time: Duration::from_secs(0),
             iterations: 0,
